@@ -14,7 +14,7 @@ defmodule Exlytics.Router do
   plug(:dispatch)
 
   get "/" do
-    conn |> async_save_pageview()
+    conn |> async_save_pageview(DateTime.utc_now() |> DateTime.to_iso8601())
 
     conn
     |> put_resp_header("content-type", "application/json")
@@ -26,14 +26,14 @@ defmodule Exlytics.Router do
     send_resp(conn, 404, "Oops!")
   end
 
-  defp async_save_pageview(%Plug.Conn{} = conn) do
+  defp async_save_pageview(%Plug.Conn{} = conn, event_timestamp) do
     Task.start(fn ->
       {:ok, doc} =
         Projects.firestore_projects_databases_documents_create_document(
           google_connection(),
           @firestore_database,
           "pageviews",
-          body: conn |> document()
+          body: conn |> document(event_timestamp)
         )
 
       Logger.info(doc |> inspect())
@@ -49,9 +49,12 @@ defmodule Exlytics.Router do
     token.token
   end
 
-  defp document(%Plug.Conn{} = conn) do
+  defp document(%Plug.Conn{} = conn, event_timestamp) do
     %Document{
-      fields: req_headers_map(conn) |> Map.merge(query_params_map(conn))
+      fields:
+        req_headers_map(conn)
+        |> Map.merge(query_params_map(conn))
+        |> Map.merge(%{event_timestamp: %Value{timestampValue: event_timestamp}})
     }
   end
 

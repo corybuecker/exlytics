@@ -1,6 +1,7 @@
 defmodule Exlytics.Router do
   @moduledoc false
-  @firestore_database "projects/corybuecker-com/databases/(default)/documents"
+  @firestore_collection "pageviews"
+  @allowed_origins ["https://corybuecker.com"]
 
   use Plug.Router
   require Logger
@@ -18,7 +19,7 @@ defmodule Exlytics.Router do
 
     conn
     |> put_resp_header("content-type", "application/json")
-    |> put_resp_header("access-control-allow-origin", "https://corybuecker.com")
+    |> put_resp_header("access-control-allow-origin", @allowed_origins |> Enum.join(" "))
     |> send_resp(200, "{}")
   end
 
@@ -31,8 +32,8 @@ defmodule Exlytics.Router do
       {:ok, doc} =
         Projects.firestore_projects_databases_documents_create_document(
           google_connection(),
-          @firestore_database,
-          "pageviews",
+          Application.fetch_env!(:exlytics, :firestore_database),
+          @firestore_collection,
           body: conn |> document(event_timestamp)
         )
 
@@ -40,6 +41,7 @@ defmodule Exlytics.Router do
     end)
   end
 
+  @spec google_connection() :: %Tesla.Client{}
   defp google_connection do
     token() |> Connection.new()
   end

@@ -15,9 +15,8 @@ defmodule Exlytics.Router do
   plug(:dispatch)
 
   get "/" do
-    conn |> async_save_pageview(DateTime.utc_now() |> DateTime.to_iso8601())
-
     conn
+    |> save_pageview(DateTime.utc_now() |> DateTime.to_iso8601())
     |> put_resp_header("content-type", "application/json")
     |> put_resp_header("access-control-allow-origin", @allowed_origins |> Enum.join(" "))
     |> send_resp(200, "{}")
@@ -27,18 +26,18 @@ defmodule Exlytics.Router do
     send_resp(conn, 404, "Oops!")
   end
 
-  defp async_save_pageview(%Plug.Conn{} = conn, event_timestamp) do
-    Task.start(fn ->
-      {:ok, doc} =
-        Projects.firestore_projects_databases_documents_create_document(
-          google_connection(),
-          Application.fetch_env!(:exlytics, :firestore_database),
-          @firestore_collection,
-          body: conn |> document(event_timestamp)
-        )
+  defp save_pageview(%Plug.Conn{} = conn, event_timestamp) do
+    {:ok, doc} =
+      Projects.firestore_projects_databases_documents_create_document(
+        google_connection(),
+        Application.fetch_env!(:exlytics, :firestore_database),
+        @firestore_collection,
+        body: conn |> document(event_timestamp)
+      )
 
-      Logger.info(doc |> inspect())
-    end)
+    Logger.info(doc |> inspect())
+
+    conn
   end
 
   @spec google_connection() :: %Tesla.Client{}

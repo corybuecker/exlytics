@@ -18,12 +18,21 @@ defmodule Exlytics.Router do
     conn
     |> save_pageview(DateTime.utc_now() |> DateTime.to_iso8601())
     |> put_resp_header("content-type", "application/json")
-    |> put_resp_header("access-control-allow-origin", @allowed_origins |> Enum.join(" "))
+    |> add_access_control_allow_origin_header()
     |> send_resp(200, "{}")
   end
 
   match _ do
     send_resp(conn, 404, "Oops!")
+  end
+
+  defp add_access_control_allow_origin_header(%Plug.Conn{} = conn) do
+    with [origin] <- conn |> get_req_header("origin"),
+         true <- @allowed_origins |> Enum.member?(origin) do
+      conn |> put_resp_header("access-control-allow-origin", origin)
+    else
+      _ -> conn
+    end
   end
 
   defp save_pageview(%Plug.Conn{} = conn, event_timestamp) do

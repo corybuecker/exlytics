@@ -22,7 +22,7 @@ defmodule Exlytics.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:google_api_firestore, "~> 0.10"},
+      {:google_api_firestore, "~> 0.12"},
       {:goth, "~> 1.2.0"},
       {:plug_cowboy, "~> 2.0"},
       {:dialyxir, "~> 0.4", only: [:dev]},

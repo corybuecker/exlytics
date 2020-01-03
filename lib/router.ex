@@ -1,7 +1,7 @@
 defmodule Exlytics.Router do
   @moduledoc false
   @firestore_collection "pageviews"
-  @allowed_origins ["https://corybuecker.com"]
+  @allowed_origins ["https://corybuecker.com", "https://integration.corybuecker.com"]
 
   use Plug.Router
   require Logger

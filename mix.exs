@@ -24,7 +24,7 @@ defmodule Exlytics.MixProject do
     [
       {:google_api_firestore, "~> 0.12"},
       {:goth, "~> 1.2.0"},
-      {:plug_cowboy, "~> 2.0"},
+      {:plug_cowboy, "~> 2.1.1"},
       {:dialyxir, "~> 0.4", only: [:dev]},
       {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false}
     ]

@@ -1,7 +1,9 @@
 defmodule Exlytics.Router do
   @moduledoc false
+
   @firestore_collection "pageviews"
   @allowed_origins ["https://corybuecker.com", "https://integration.corybuecker.com"]
+  @allowed_headers ["host", "origin", "referer", "user-agent"]
 
   use Plug.Router
   require Logger
@@ -16,7 +18,7 @@ defmodule Exlytics.Router do
 
   get "/" do
     conn
-    |> save_pageview(DateTime.utc_now() |> DateTime.to_iso8601())
+    |> save_event(DateTime.utc_now() |> DateTime.to_iso8601())
     |> put_resp_header("content-type", "application/json")
     |> add_access_control_allow_origin_header()
     |> send_resp(200, "{}")
@@ -35,7 +37,7 @@ defmodule Exlytics.Router do
     end
   end
 
-  defp save_pageview(%Plug.Conn{} = conn, event_timestamp) do
+  defp save_event(%Plug.Conn{} = conn, event_timestamp) do
     {:ok, doc} =
       Projects.firestore_projects_databases_documents_create_document(
         google_connection(),
@@ -69,7 +71,12 @@ defmodule Exlytics.Router do
   end
 
   def req_headers_map(%Plug.Conn{} = conn) do
-    conn.req_headers |> to_google_fields()
+    conn.req_headers |> filter_by_allowed() |> to_google_fields()
+  end
+
+  @spec filter_by_allowed(list(tuple())) :: list(tuple())
+  defp filter_by_allowed(headers) do
+    headers |> Enum.filter(fn {header, _value} -> Enum.member?(@allowed_headers, header) end)
   end
 
   def query_params_map(%Plug.Conn{} = conn) do

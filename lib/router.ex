@@ -18,7 +18,7 @@ defmodule Exlytics.Router do
 
   get "/" do
     conn
-    |> save_event(DateTime.utc_now() |> DateTime.to_iso8601())
+    |> save_event()
     |> put_resp_header("content-type", "application/json")
     |> add_access_control_allow_origin_header()
     |> send_resp(200, "{}")
@@ -37,13 +37,13 @@ defmodule Exlytics.Router do
     end
   end
 
-  defp save_event(%Plug.Conn{} = conn, event_timestamp) do
+  defp save_event(%Plug.Conn{} = conn) do
     {:ok, doc} =
       Projects.firestore_projects_databases_documents_create_document(
         google_connection(),
         Application.fetch_env!(:exlytics, :firestore_database),
         @firestore_collection,
-        body: conn |> document(event_timestamp)
+        body: conn |> document()
       )
 
     Logger.info(doc |> inspect())
@@ -61,12 +61,14 @@ defmodule Exlytics.Router do
     token.token
   end
 
-  defp document(%Plug.Conn{} = conn, event_timestamp) do
+  defp document(%Plug.Conn{} = conn) do
     %Document{
       fields:
         req_headers_map(conn)
         |> Map.merge(query_params_map(conn))
-        |> Map.merge(%{event_timestamp: %Value{timestampValue: event_timestamp}})
+        |> Map.merge(%{
+          event_timestamp: %Value{timestampValue: DateTime.utc_now() |> DateTime.to_iso8601()}
+        })
     }
   end
 

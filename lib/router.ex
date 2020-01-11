@@ -17,17 +17,26 @@ defmodule Exlytics.Router do
   plug(:dispatch)
 
   get "/" do
-    conn
-    |> save_event()
-    |> put_resp_header("content-type", "application/json")
-    |> add_access_control_allow_origin_header()
-    |> send_resp(200, "{}")
+    conn |> process_event()
+  end
+
+  post "/" do
+    conn |> process_event()
   end
 
   match _ do
     send_resp(conn, 404, "Oops!")
   end
 
+  defp process_event(%Plug.Conn{} = conn) do
+    conn
+    |> put_resp_header("content-type", "application/json")
+    |> add_access_control_allow_origin_header()
+    |> save_event_for_conn()
+    |> send_resp(200, "{}")
+  end
+
+  @spec add_access_control_allow_origin_header(%Plug.Conn{}) :: %Plug.Conn{}
   defp add_access_control_allow_origin_header(%Plug.Conn{} = conn) do
     with [origin] <- conn |> get_req_header("origin"),
          true <- @allowed_origins |> Enum.member?(origin) do
@@ -37,7 +46,8 @@ defmodule Exlytics.Router do
     end
   end
 
-  defp save_event(%Plug.Conn{} = conn) do
+  @spec save_event_for_conn(%Plug.Conn{}) :: %Plug.Conn{}
+  defp save_event_for_conn(%Plug.Conn{} = conn) do
     {:ok, doc} =
       Projects.firestore_projects_databases_documents_create_document(
         google_connection(),
@@ -56,9 +66,12 @@ defmodule Exlytics.Router do
     token() |> Connection.new()
   end
 
+  @spec token() :: binary()
   defp token do
-    {:ok, token} = Goth.Token.for_scope("https://www.googleapis.com/auth/datastore")
-    token.token
+    {:ok, %Goth.Token{type: "Bearer", token: token}} =
+      Goth.Token.for_scope("https://www.googleapis.com/auth/datastore")
+
+    token
   end
 
   defp document(%Plug.Conn{} = conn) do

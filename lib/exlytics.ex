@@ -1,16 +1,17 @@
 defmodule Exlytics do
   @moduledoc false
+
   use Application
 
   def start(_type, _args) do
     children = [
-      {Plug.Cowboy,
-       scheme: :http,
-       plug: Exlytics.Router,
-       options: [port: Application.fetch_env!(:exlytics, :port), ip: {0, 0, 0, 0}]}
+      Plug.Cowboy.child_spec([
+        {:scheme, :http},
+        {:plug, Exlytics.Router},
+        {:port, Application.fetch_env!(:exlytics, :port)}
+      ])
     ]
 
-    opts = [strategy: :one_for_one, name: Exlytics.Supervisor]
-    Supervisor.start_link(children, opts)
+    Supervisor.start_link(children, [{:strategy, :one_for_one}])
   end
 end

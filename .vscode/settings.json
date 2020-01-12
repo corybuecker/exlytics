@@ -3,6 +3,5 @@
   "editor.tabSize": 2,
   "search.useGlobalIgnoreFiles": true,
   "editor.wordWrap": "on",
-  "editor.renderWhitespace": "all",
-  "eslint.run": "onSave"
+  "editor.renderWhitespace": "all"
 }

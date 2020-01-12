@@ -1,5 +1,9 @@
 import Config
 
 config :exlytics,
-  firestore_database: System.get_env("FIRESTORE_DATABASE"),
-  port: 8080
+  database: System.get_env("DATABASE"),
+  host: System.get_env("HOST"),
+  mongo_connection: System.get_env("MONGO_CONNECTION"),
+  port: System.get_env("PORT")
+
+import_config "#{Mix.env()}.exs"

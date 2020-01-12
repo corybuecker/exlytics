@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  mongo:
+    image: mongo:3
+    ports:
+      - 27017:27017
+  exlytics:
+    build:
+      context: .
+    depends_on:
+      - mongo
+    ports:
+      - 8081:80
+    environment:
+      - MIX_ENV=prod
+      - MONGO_CONNECTION=mongo:27017

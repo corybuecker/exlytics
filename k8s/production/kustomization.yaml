@@ -1,0 +1,22 @@
+resources:
+  - ../base
+
+namePrefix: production-
+
+commonLabels:
+  deployment: production-exlytics
+
+patchesStrategicMerge:
+  - |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: exlytics
+    spec:
+      template:
+        spec:
+          containers:
+            - name: nginx
+              envFrom:
+                - secretRef:
+                    name: exlytics-production-8m6t4b98mk

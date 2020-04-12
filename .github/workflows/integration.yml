@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - integration
-      - mongodb-migration
 
 env:
   CLOUDSDK_COMPUTE_REGION: us-central1

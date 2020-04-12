@@ -15,6 +15,16 @@ patchesStrategicMerge:
     spec:
       template:
         spec:
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: application
+                        operator: In
+                        values:
+                          - production-exlytics
+                  topologyKey: kubernetes.io/hostname
           containers:
             - name: nginx
               envFrom:

@@ -20,13 +20,28 @@ patchesStrategicMerge:
               requiredDuringSchedulingIgnoredDuringExecution:
                 - labelSelector:
                     matchExpressions:
-                      - key: application
+                      - key: distribute
                         operator: In
                         values:
-                          - integration-exlytics
+                          - always
                   topologyKey: kubernetes.io/hostname
           containers:
             - name: nginx
               envFrom:
                 - secretRef:
                     name: exlytics-integration-b72hkm782k
+  - |-
+    apiVersion: batch/v1beta1
+    kind: CronJob
+    metadata:
+      name: exlytics
+    spec:
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              containers:
+                - name: nginx
+                  envFrom:
+                    - secretRef:
+                        name: exlytics-integration-b72hkm782k

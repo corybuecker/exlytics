@@ -23,7 +23,7 @@ defmodule Exlytics.MixProject do
   defp deps do
     [
       {:mongodb, "~> 0.5.1"},
-      {:plug_cowboy, "~> 2.1.2"},
+      {:plug_cowboy, "~> 2.1.3"},
       {:poolboy, ">= 0.0.0"},
       {:credo, "~> 1.3.1", only: [:dev, :integration], runtime: false},
       {:dialyxir, "~> 1.0.0", only: [:dev], runtime: false},

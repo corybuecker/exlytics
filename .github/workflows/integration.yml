@@ -52,7 +52,7 @@ jobs:
         run: mix deps.get && mix deps.compile
 
       - name: Lint backend
-        run: mix credo --strict
+        run: mix credo
 
       - name: Build image
         run: docker build -t ${{ secrets.IMAGE_TAG }}:integration-${{ github.sha }} .

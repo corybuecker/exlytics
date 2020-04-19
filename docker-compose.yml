@@ -1,16 +1,15 @@
 version: "3.7"
 services:
-  mongo:
-    image: mongo:3
+  timescaledb:
+    image: timescale/timescaledb:latest-pg11
+    environment:
+      - POSTGRES_PASSWORD=password
     ports:
-      - 27017:27017
+      - 5432:5432
   exlytics:
     build:
       context: .
     depends_on:
-      - mongo
+      - timescaledb
     ports:
       - 8081:80
-    environment:
-      - MIX_ENV=prod
-      - MONGO_CONNECTION=mongo:27017

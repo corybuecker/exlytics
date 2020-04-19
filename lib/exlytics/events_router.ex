@@ -43,19 +43,22 @@ defmodule Exlytics.EventsRouter do
 
   @spec save_event_for_conn(%Plug.Conn{}) :: %Plug.Conn{}
   defp save_event_for_conn(%Plug.Conn{} = conn) do
-    {:ok, doc} = Mongo.insert_one(:mongo, "events", conn |> document())
-
-    Logger.info(doc |> inspect())
+    Exlytics.Event.changeset(%Exlytics.Event{}, conn |> document())
+    |> (fn changeset ->
+          Logger.info(changeset |> inspect())
+          changeset
+        end).()
+    |> Exlytics.Repo.insert()
 
     conn
   end
 
   defp document(%Plug.Conn{} = conn) do
-    req_headers_map(conn)
-    |> Map.merge(query_params_map(conn))
-    |> Map.merge(%{
-      "event_timestamp" => DateTime.utc_now()
-    })
+    %{
+      metadata:
+        req_headers_map(conn)
+        |> Map.merge(query_params_map(conn))
+    }
   end
 
   defp req_headers_map(%Plug.Conn{} = conn) do

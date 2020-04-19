@@ -9,12 +9,7 @@ defmodule Exlytics do
         {:plug, Exlytics.Router},
         {:port, Application.fetch_env!(:exlytics, :port) |> String.to_integer()}
       ]),
-      Mongo.child_spec([
-        {:name, :mongo},
-        {:database, Application.fetch_env!(:exlytics, :database)},
-        {:pool_size, 4},
-        {:seeds, [Application.fetch_env!(:exlytics, :mongo_connection)]}
-      ])
+      {Exlytics.Repo, []}
     ]
 
     Supervisor.start_link(children, [{:strategy, :one_for_one}])

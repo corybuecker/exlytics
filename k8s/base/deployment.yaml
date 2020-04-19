@@ -2,17 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: exlytics
-  labels:
-    distribute: always
 spec:
   replicas: 3
-  selector:
-    matchLabels:
-      distribute: always
   template:
-    metadata:
-      labels:
-        distribute: always
     spec:
       containers:
         - name: nginx

@@ -22,9 +22,10 @@ defmodule Exlytics.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:mongodb, "~> 0.5.1"},
+      {:ecto_sql, "~> 3.0"},
+      {:postgrex, ">= 0.0.0"},
+      {:jason, "~> 1.2.0"},
       {:plug_cowboy, "~> 2.1.3"},
-      {:poolboy, ">= 0.0.0"},
       {:credo, "~> 1.3.1", only: [:dev, :integration], runtime: false},
       {:dialyxir, "~> 1.0.0", only: [:dev], runtime: false},
       {:lettuce, "~> 0.1.0", only: [:dev]}

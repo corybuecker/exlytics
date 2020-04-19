@@ -11,6 +11,9 @@ RUN mix local.hex --force && \
     mix local.rebar --force && \
     mix deps.get
 
+RUN MIX_ENV=prod mix deps.compile
+RUN MIX_ENV=integration mix deps.compile
+
 COPY . ${MIX_HOME}
 
 RUN MIX_ENV=prod mix compile

@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   timescaledb:
-    image: timescale/timescaledb:latest-pg11
+    image: timescale/timescaledb:1.7.0-pg12
     environment:
       - POSTGRES_PASSWORD=password
     ports:

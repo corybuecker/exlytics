@@ -35,13 +35,6 @@ jobs:
           tar zxvf kustomize.tar.gz
           chmod u+x ./kustomize
 
-      - name: Backend dependency caching
-        uses: actions/cache@v1.1.0
-        with:
-          path: deps
-          key: ${{ runner.os }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
-          restore-keys: ${{ runner.os }}-mix-
-
       - name: Build image
         run: docker build -t ${{ secrets.IMAGE_TAG }}:${{ github.sha }} .
 

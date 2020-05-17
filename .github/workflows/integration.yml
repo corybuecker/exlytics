@@ -31,16 +31,8 @@ jobs:
       - name: Backend dependency caching
         uses: actions/cache@master
         with:
-          path: /apps/data/deps
-          key: ${{ runner.os }}-data-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/apps/data/mix.lock')) }}
-          restore-keys: ${{ runner.os }}-data-mix-
-
-      - name: Backend build caching
-        uses: actions/cache@master
-        with:
-          path: /apps/data/_build
-          key: ${{ runner.os }}-data-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/apps/data/mix.lock')) }}
-          restore-keys: ${{ runner.os }}-data-build-
+          path: apps/data/deps
+          key: data-mix-v2-${{ hashFiles(format('{0}{1}', github.workspace, '/apps/data/mix.lock')) }}
 
       - name: Download backend dependencies
         run: mix deps.get
@@ -69,16 +61,8 @@ jobs:
       - name: Backend dependency caching
         uses: actions/cache@master
         with:
-          path: /apps/collector/deps
-          key: ${{ runner.os }}-collector-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/apps/collector/mix.lock')) }}
-          restore-keys: ${{ runner.os }}-collector-mix-
-
-      - name: Backend build caching
-        uses: actions/cache@master
-        with:
-          path: /apps/collector/_build
-          key: ${{ runner.os }}-collector-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/apps/collector/mix.lock')) }}
-          restore-keys: ${{ runner.os }}-collector-build-
+          path: apps/collector/deps
+          key: collector-mix-v2-${{ hashFiles(format('{0}{1}', github.workspace, '/apps/collector/mix.lock')) }}
 
       - name: Setup Elixir
         uses: actions/setup-elixir@master

@@ -1,6 +1,6 @@
 # ExLytics
 
-**TODO: Add description**
+![Integration](https://github.com/corybuecker/exlytics/workflows/Integration/badge.svg?branch=integration)
 
 ## Installation
 

@@ -6,6 +6,8 @@ defmodule Exlytics.Collector.EventsRouter do
     "http://localhost:5000"
   ]
   @allowed_headers ["host", "origin", "referer", "user-agent"]
+  @ignored_metadata ["account_id"]
+
   alias Exlytics.Data.{Event, Repo}
 
   use Plug.Router
@@ -17,11 +19,11 @@ defmodule Exlytics.Collector.EventsRouter do
   plug(:dispatch)
 
   get "/" do
-    conn |> process_event()
+    conn |> fetch_query_params() |> process_event()
   end
 
   post "/" do
-    conn |> process_event()
+    conn |> fetch_query_params() |> process_event()
   end
 
   defp process_event(%Plug.Conn{} = conn) do
@@ -44,22 +46,35 @@ defmodule Exlytics.Collector.EventsRouter do
 
   @spec save_event_for_conn(%Plug.Conn{}) :: %Plug.Conn{}
   defp save_event_for_conn(%Plug.Conn{} = conn) do
-    Event.changeset(%Event{}, conn |> document())
-    |> (fn changeset ->
-          Logger.info(changeset |> inspect())
-          changeset
-        end).()
-    |> Repo.insert()
+    with changeset <- Event.changeset(%Event{}, conn |> document()) do
+      Logger.info(changeset |> inspect())
+      changeset |> Repo.insert()
+    end
 
     conn
   end
 
+  defp extract_account_id(%Plug.Conn{} = conn) do
+    with {:ok, body_string, _conn} <- conn |> read_body(),
+         {:ok, body} <- Jason.decode(body_string) do
+      body |> Map.take(["account_id"])
+    end
+  end
+
   defp document(%Plug.Conn{} = conn) do
+    body = conn |> body_map()
+
     %{
-      metadata:
+      "metadata" =>
         req_headers_map(conn)
         |> Map.merge(query_params_map(conn))
+        |> Map.merge(
+          body
+          |> Enum.filter(fn {key, _value} -> !Enum.member?(@ignored_metadata, key) end)
+          |> Enum.into(%{})
+        )
     }
+    |> Map.merge(body |> Map.take(["account_id"]))
   end
 
   defp req_headers_map(%Plug.Conn{} = conn) do
@@ -74,11 +89,20 @@ defmodule Exlytics.Collector.EventsRouter do
     end)
   end
 
+  defp body_map(%Plug.Conn{} = conn) do
+    with {:ok, body, _conn} <- conn |> read_body(), {:ok, body} <- Jason.decode(body) do
+      body
+    else
+      err -> %{error: err}
+    end
+  end
+
   @spec query_params_map(%Plug.Conn{}) :: map()
   defp query_params_map(%Plug.Conn{} = conn) do
-    conn = conn |> fetch_query_params()
-
-    conn.query_params |> to_fields()
+    conn.query_params
+    |> to_fields()
+    |> Enum.filter(fn {key, _value} -> !Enum.member?(@ignored_metadata, key) end)
+    |> Enum.into(%{})
   end
 
   defp to_fields(values) when is_list(values) or is_map(values) do

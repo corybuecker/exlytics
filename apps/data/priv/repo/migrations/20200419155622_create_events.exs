@@ -5,9 +5,7 @@ defmodule Exlytics.Data.Repo.Migrations.CreateEvents do
     execute("create extension if not exists timescaledb", "")
 
     create table(:events, [{:primary_key, false}]) do
-      # add(:account_id, :uuid, null: false)
       add(:time, :utc_datetime_usec, null: false)
-      # add(:url, :string, null: false)
       add(:metadata, :map)
       timestamps()
     end

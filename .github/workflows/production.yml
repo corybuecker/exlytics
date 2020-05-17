@@ -40,6 +40,9 @@ jobs:
       - name: Configure Docker
         run: gcloud --quiet auth configure-docker
 
+      - name: Download backend dependencies
+        run: mix deps.get
+
       - name: Build release
         run: MIX_ENV=prod mix release
 

@@ -31,14 +31,14 @@ jobs:
       - name: Backend dependency caching
         uses: actions/cache@master
         with:
-          path: deps
+          path: /apps/data/deps
           key: ${{ runner.os }}-data-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/apps/data/mix.lock')) }}
           restore-keys: ${{ runner.os }}-data-mix-
 
       - name: Backend build caching
         uses: actions/cache@master
         with:
-          path: _build
+          path: /apps/data/_build
           key: ${{ runner.os }}-data-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/apps/data/mix.lock')) }}
           restore-keys: ${{ runner.os }}-data-build-
 
@@ -69,14 +69,14 @@ jobs:
       - name: Backend dependency caching
         uses: actions/cache@master
         with:
-          path: deps
+          path: /apps/collector/deps
           key: ${{ runner.os }}-collector-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/apps/collector/mix.lock')) }}
           restore-keys: ${{ runner.os }}-collector-mix-
 
       - name: Backend build caching
         uses: actions/cache@master
         with:
-          path: _build
+          path: /apps/collector/_build
           key: ${{ runner.os }}-collector-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/apps/collector/mix.lock')) }}
           restore-keys: ${{ runner.os }}-collector-build-
 

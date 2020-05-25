@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "module": "ESNext",
+    "jsx": "preserve",
+    "allowJs": true,
+    "lib": ["ES2017", "dom"]
+  },
+  "include": ["src"]
+}

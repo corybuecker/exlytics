@@ -67,8 +67,6 @@ jobs:
       SECRET_KEY_BASE: github
       LIVE_VIEW_SIGNING_SALT: github
 
-    needs: data
-
     defaults:
       run:
         working-directory: apps/dashboard

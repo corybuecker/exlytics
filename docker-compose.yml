@@ -1,8 +1,8 @@
-version: "3.7"
+version: "3.8"
 services:
-  timescaledb:
-    image: timescale/timescaledb:1.7.0-pg11
+  postgres:
+    image: postgres:11
     environment:
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
       - 5432:5432

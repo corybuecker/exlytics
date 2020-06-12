@@ -23,7 +23,7 @@ defmodule Exlytics.Collector.MixProject do
   defp deps do
     [
       {:data, path: "../data"},
-      {:plug_cowboy, "~> 2.2.1"},
+      {:plug_cowboy, "~> 2.3.0"},
       {:credo, "~> 1.4.0", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.0.0", only: [:dev], runtime: false},
       {:lettuce, "~> 0.1.0", only: [:dev]}

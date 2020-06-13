@@ -6,7 +6,7 @@ defmodule Exlytics.EventsRouter do
     "http://localhost:5000"
   ]
   @allowed_headers ["host", "origin", "referer", "user-agent"]
-  @ignored_metadata ["account_id"]
+  @ignored_metadata []
 
   alias Exlytics.Data.{Event, Repo}
 
@@ -54,13 +54,6 @@ defmodule Exlytics.EventsRouter do
     conn
   end
 
-  defp extract_account_id(%Plug.Conn{} = conn) do
-    with {:ok, body_string, _conn} <- conn |> read_body(),
-         {:ok, body} <- Jason.decode(body_string) do
-      body |> Map.take(["account_id"])
-    end
-  end
-
   defp document(%Plug.Conn{} = conn) do
     body = conn |> body_map()
 
@@ -74,7 +67,6 @@ defmodule Exlytics.EventsRouter do
           |> Enum.into(%{})
         )
     }
-    |> Map.merge(body |> Map.take(["account_id"]))
   end
 
   defp req_headers_map(%Plug.Conn{} = conn) do

@@ -1,4 +1,4 @@
 # Used by "mix format"
 [
-  subdirectories: ["apps/data", "apps/collector"]
+  inputs: ["{mix,.formatter}.exs", "{config,lib,test,priv}/**/*.{ex,exs}"]
 ]

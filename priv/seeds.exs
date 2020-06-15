@@ -11,9 +11,6 @@ pages = [
   nil
 ]
 
-%Exlytics.Data.Account{id: account_id} =
-  Exlytics.Data.Account |> Ecto.Query.first() |> Exlytics.Data.Repo.one()
-
 Enum.each(0..2000, fn _ ->
   {:ok, datetime} =
     with {:ok, date} <- Date.new(Enum.random(2018..2020), Enum.random(1..12), Enum.random(1..28)),
@@ -24,8 +21,8 @@ Enum.each(0..2000, fn _ ->
 
   %Exlytics.Data.Event{
     time: datetime,
-    account_id: account_id,
     metadata: %{
+      account_id: "3ecfe3ec-8a01-4a3a-8982-1b6248af39a7",
       host: "exlytics.corybuecker.com",
       user_agent: user_agents |> Enum.random(),
       page: pages |> Enum.random()

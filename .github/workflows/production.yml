@@ -2,7 +2,7 @@ name: Production
 on:
   push:
     branches:
-      - master
+      - main
 
 env:
   CLOUDSDK_COMPUTE_REGION: us-central1

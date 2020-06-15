@@ -4,4 +4,4 @@ config :exlytics,
   host: "localhost",
   port: "8080"
 
-config :exlytics, Exlytics.Data.Repo, url: "ecto://postgres@localhost:5432/exlytics_dev?ssl=false"
+config :exlytics, Exlytics.Data.Repo, url: "ecto://exlytics@localhost:5432/exlytics?ssl=false"

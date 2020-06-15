@@ -2,10 +2,10 @@ name: Integration
 on:
   push:
     branches-ignore:
-      - master
+      - main
   pull_request:
     branches-ignore:
-      - master
+      - main
 
 env:
   CLOUDSDK_COMPUTE_REGION: us-central1

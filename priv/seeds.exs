@@ -25,7 +25,8 @@ Enum.each(0..2000, fn _ ->
       account_id: "3ecfe3ec-8a01-4a3a-8982-1b6248af39a7",
       host: "exlytics.corybuecker.com",
       user_agent: user_agents |> Enum.random(),
-      page: pages |> Enum.random()
+      page: pages |> Enum.random(),
+      click_link: pages |> Enum.random()
     }
   }
   |> Exlytics.Data.Repo.insert!()

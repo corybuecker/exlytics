@@ -1,7 +1,7 @@
 defmodule Exlytics.EventsRouter do
   @moduledoc false
 
-  @allowed_metadata ["host", "origin", "referer", "user-agent", "account_id"]
+  @allowed_headers ["host", "origin", "referer", "user-agent"]
 
   alias Exlytics.Data.{Event, Repo}
 
@@ -45,13 +45,15 @@ defmodule Exlytics.EventsRouter do
         req_headers_map(conn)
         |> Map.merge(query_params_map(conn))
         |> Map.merge(body |> Enum.into(%{}))
-        |> Enum.filter(fn {key, _value} -> Enum.member?(@allowed_metadata, key) end)
         |> Enum.into(%{})
     }
   end
 
   defp req_headers_map(%Plug.Conn{} = conn) do
-    conn.req_headers |> to_fields()
+    conn.req_headers
+    |> to_fields()
+    |> Enum.filter(fn {key, _value} -> Enum.member?(@allowed_headers, key) end)
+    |> Enum.into(%{})
   end
 
   defp body_map(%Plug.Conn{} = conn) do

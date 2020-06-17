@@ -4,12 +4,8 @@ defmodule Exlytics.Data.Event do
   use Ecto.Schema
 
   import Ecto.Changeset
-  import Ecto.Query
-
-  alias Exlytics.Data.Repo
 
   @primary_key false
-
   schema "events" do
     field(:time, :utc_datetime_usec, null: false)
     field(:metadata, :map)

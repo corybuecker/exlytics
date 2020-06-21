@@ -1,13 +1,21 @@
-FROM ubuntu:18.04
+FROM elixir:1.10.3-alpine AS builder
+ARG mix_env=dev
 
-RUN apt-get update && \
-  apt-get install -y --no-install-recommends libssl1.0-dev && \
-  rm -rf /var/lib/apt/lists/*
+ENV MIX_HOME /exlytics
+ENV MIX_ENV $mix_env
 
-ARG release=_build/dev/rel/exlytics
-ENV MIX_HOME /home
+WORKDIR $MIX_HOME
+COPY . $MIX_HOME
 
-WORKDIR /home
-COPY $release /home/
+RUN mix local.hex --force
+RUN mix local.rebar --force
+RUN mix deps.get
+RUN mix release
 
-CMD ["/home/bin/exlytics", "start"]
+FROM elixir:1.10.3-alpine
+
+ARG release=/exlytics/_build/dev/rel/exlytics
+
+COPY --from=builder $release /exlytics
+
+CMD ["/exlytics/bin/exlytics", "start"]

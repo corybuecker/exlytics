@@ -66,7 +66,7 @@ jobs:
       - name: Install GCP
         uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
-          version: "292.0.0"
+          version: "297.0.1"
           service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY }}
           project_id: ${{ secrets.CLOUDSDK_CORE_PROJECT }}
           service_account_email: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
@@ -86,9 +86,3 @@ jobs:
 
       - name: Push image
         run: docker push ${{ secrets.IMAGE_TAG }}:integration-${{ github.sha }}
-
-      - name: Configure kubectl
-        run: gcloud container clusters get-credentials ${{ secrets.CLUSTER_NAME }}
-
-      - name: Deploy
-        run: kubectl --namespace integration set image --record deployment/exlytics exlytics=${{ secrets.IMAGE_TAG }}:integration-${{ github.sha }}

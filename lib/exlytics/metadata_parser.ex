@@ -34,7 +34,6 @@ defmodule Exlytics.MetadataParser do
 
   defp query_params_to_map(%Plug.Conn{} = conn) do
     conn.query_params
-    |> Enum.filter(fn {key, _value} -> Enum.member?(@allowed_headers, key) end)
     |> Enum.into(%{})
   end
 end

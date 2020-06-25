@@ -22,4 +22,15 @@ defmodule Exlytics.MetadataParserTest do
 
     assert metadata == %{"host" => "localhost", "test" => true}
   end
+
+  test "handles an invalid body" do
+    metadata =
+      Plug.Test.conn(:post, "/?query=true", "this is not JSON")
+      |> Plug.Conn.put_req_header("host", "localhost")
+      |> Plug.Conn.put_req_header("ip", "1.2.3.4")
+      |> Plug.Conn.put_req_header("content-type", "text/plain")
+      |> Exlytics.MetadataParser.metadata_from_conn()
+
+    assert metadata == %{"host" => "localhost", "query" => "true"}
+  end
 end

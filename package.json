@@ -1,0 +1,14 @@
+{
+  "name": "exlytics",
+  "version": "0.0.1",
+  "dependencies": {
+    "@commitlint/cli": "^9.0.1",
+    "@commitlint/config-conventional": "^9.0.1",
+    "husky": "^4.2.5"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
+}

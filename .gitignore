@@ -23,3 +23,4 @@ erl_crash.dump
 collector-*.tar
 
 .env
+node_modules

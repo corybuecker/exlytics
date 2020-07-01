@@ -10,19 +10,9 @@ env:
   CLOUDSDK_COMPUTE_ZONE: us-central1-c
 
 jobs:
-  merge_check:
-    name: Merge
+  image:
+    name: Build image
 
-    runs-on: ubuntu-latest
-
-    needs: [dependencies]
-
-    steps:
-      - run: echo 'Ok to merge'
-  
-  deploy:
-    name: Deploy
-    
     runs-on: ubuntu-latest
 
     needs: [dependencies]
@@ -53,7 +43,7 @@ jobs:
     name: Dependencies
 
     runs-on: ubuntu-latest
-    
+
     container: elixir:1.10.3-alpine
 
     env:
@@ -86,7 +76,7 @@ jobs:
 
       - name: Lint
         run: mix credo
-      
+
       - name: Build test database
         run: mix ecto.create
 

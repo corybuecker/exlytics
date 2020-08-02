@@ -1,4 +1,4 @@
-FROM elixir:1.10.3-alpine AS builder
+FROM elixir:1.10.4-alpine AS builder
 ARG mix_env=dev
 
 ENV MIX_HOME /exlytics
@@ -12,7 +12,7 @@ RUN mix local.rebar --force
 RUN mix deps.get
 RUN mix release
 
-FROM elixir:1.10.3-alpine
+FROM elixir:1.10.4-alpine
 
 ARG release=/exlytics/_build/dev/rel/exlytics
 

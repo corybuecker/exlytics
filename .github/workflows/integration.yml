@@ -44,7 +44,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    container: elixir:1.10.3-alpine
+    container: elixir:1.10.4-alpine
 
     env:
       MIX_ENV: test

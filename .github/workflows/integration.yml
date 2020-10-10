@@ -44,7 +44,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    container: elixir:1.10.4-alpine
+    container: elixir:1.11.0-alpine
 
     env:
       MIX_ENV: test
@@ -52,7 +52,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:12-alpine
+        image: postgres:11-alpine
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
         options: >-

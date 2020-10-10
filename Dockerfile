@@ -14,8 +14,13 @@ RUN mix release
 
 FROM elixir:1.10.4-alpine
 
+RUN addgroup -g 5000 exlytics && \
+  adduser -u 5000 -G exlytics -s /bin/sh -D exlytics
+
+USER exlytics
+
 ARG release=/exlytics/_build/dev/rel/exlytics
 
-COPY --from=builder $release /exlytics
+COPY --from=builder $release /home/exlytics
 
-CMD ["/exlytics/bin/exlytics", "start"]
+CMD ["/home/exlytics/bin/exlytics", "start"]

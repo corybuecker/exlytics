@@ -5,4 +5,10 @@ config :exlytics,
   port: "8080"
 
 config :exlytics, Exlytics.Data.Repo,
-  url: "ecto://exlytics:exlytics@localhost:5432/exlytics?ssl=false"
+  username: "exlytics",
+  password: "exlytics",
+  database: "exlytics",
+  migration_default_prefix: "exlytics",
+  hostname: "localhost",
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10

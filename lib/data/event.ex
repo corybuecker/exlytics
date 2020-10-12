@@ -6,6 +6,7 @@ defmodule Exlytics.Data.Event do
   import Ecto.Changeset
 
   @primary_key false
+  @schema_prefix "exlytics"
   schema "events" do
     field(:time, :utc_datetime_usec, null: false)
     field(:metadata, :map)

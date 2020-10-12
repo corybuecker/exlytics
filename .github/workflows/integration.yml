@@ -55,6 +55,8 @@ jobs:
         image: postgres:11-alpine
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
+        volumes: 
+          - ./priv/create.sql:/docker-entrypoint-initdb.d/create.sql
         options: >-
           --health-cmd pg_isready
           --health-interval 10s

@@ -22,7 +22,7 @@ defmodule Exlytics.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:plug_cowboy, "~> 2.3.0"},
+      {:plug_cowboy, "~> 2.4.0"},
       {:credo, "~> 1.4.1", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0", only: [:dev], runtime: false},
       {:lettuce, "~> 0.1.0", only: [:dev]},

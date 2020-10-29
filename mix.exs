@@ -23,7 +23,7 @@ defmodule Exlytics.MixProject do
   defp deps do
     [
       {:plug_cowboy, "~> 2.4.0"},
-      {:credo, "~> 1.4.1", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.5.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0", only: [:dev], runtime: false},
       {:lettuce, "~> 0.1.0", only: [:dev]},
       {:ecto_sql, "~> 3.5.0"},

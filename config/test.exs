@@ -3,5 +3,10 @@ import Config
 config :exlytics, host: "localhost", port: "4000"
 
 config :exlytics, Exlytics.Data.Repo,
-  url: System.get_env("DATABASE_CONNECTION_URL", "ecto://postgres@localhost:5432/exytics_test"),
+  username: "exlytics",
+  password: "exlytics",
+  database: "exlytics_test",
+  migration_default_prefix: "exlytics",
+  hostname: "localhost",
+  show_sensitive_data_on_connection_error: true,
   pool: Ecto.Adapters.SQL.Sandbox

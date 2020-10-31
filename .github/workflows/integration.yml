@@ -55,8 +55,6 @@ jobs:
         image: postgres:11-alpine
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
-        volumes: 
-          - ./priv/create.sql:/docker-entrypoint-initdb.d/create.sql
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -66,6 +64,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@master
+
+      - name: Setup database
+        run: |
+          psql -U postgres -c "create database exlytics_test"
+          psql -U postgres -d exlytics_test -c "create schema exlytics"
 
       - name: Download dependencies
         run: |
@@ -78,9 +81,6 @@ jobs:
 
       - name: Lint
         run: mix credo
-
-      - name: Build test database
-        run: mix ecto.create
 
       - name: Migrate test database
         run: mix ecto.migrate

@@ -4,9 +4,7 @@
   "search.useGlobalIgnoreFiles": true,
   "editor.wordWrap": "on",
   "editor.renderWhitespace": "all",
-  "insertDateString.format": "iso",
-  "insertDateString.formatDate": "iso",
-  "insertDateString.formatTime": "iso",
   "editor.fontFamily": "Fira Code",
+  "editor.fontSize": 12,
   "editor.fontLigatures": true
 }

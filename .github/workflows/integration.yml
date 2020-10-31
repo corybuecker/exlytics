@@ -48,7 +48,7 @@ jobs:
 
     env:
       MIX_ENV: test
-      DATABASE_CONNECTION_URL: "ecto://postgres@postgres:5432/exytics_test"
+      DATABASE_CONNECTION_URL: "ecto://postgres@postgres:5432/exlytics_test"
 
     services:
       postgres:

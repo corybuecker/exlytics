@@ -68,8 +68,8 @@ jobs:
       - name: Setup database
         run: |
           apk add postgresql
-          psql -U postgres -c "create database exlytics_test"
-          psql -U postgres -d exlytics_test -c "create schema exlytics"
+          psql -h localhost -U postgres -c "create database exlytics_test"
+          psql -h localhost -U postgres -d exlytics_test -c "create schema exlytics"
 
       - name: Download dependencies
         run: |

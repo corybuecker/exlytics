@@ -69,6 +69,7 @@ jobs:
         run: |
           apk add postgresql
           psql -h postgres -U postgres -c "create database exlytics_test"
+          psql -h postgres -U postgres -c "create role dashboard"
           psql -h postgres -U postgres -d exlytics_test -c "create schema exlytics"
 
       - name: Download dependencies

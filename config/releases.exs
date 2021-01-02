@@ -6,5 +6,4 @@ config :exlytics, Exlytics.Data.Repo,
   username: "exlytics",
   password: "exlytics",
   database: "exlytics",
-  socket: System.get_env("DATABASE_CONNECTION"),
   migration_default_prefix: "exlytics"

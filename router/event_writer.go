@@ -50,6 +50,10 @@ func (ew *EventWriter) Write(req *http.Request) {
 		}
 	}
 
-	ew.Database.Exec(context.Background(), "insert into exlytics.events values (now(), $1)", event)
+	if _, err := ew.Database.Exec(context.Background(), "insert into exlytics.events values (now(), $1)", event); err != nil {
+		ew.Logger.Print(err)
+		return
+	}
+
 	ew.Logger.Print(event)
 }

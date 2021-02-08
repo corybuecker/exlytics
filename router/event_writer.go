@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -45,7 +46,7 @@ func (ew *EventWriter) Write(req *http.Request) {
 		}
 
 		for key, element := range objmap {
-			event[key] = string(element)
+			event[key] = strings.ReplaceAll(string(element), "\"", "")
 		}
 	}
 

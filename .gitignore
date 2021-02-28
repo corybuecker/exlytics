@@ -24,3 +24,4 @@ collector-*.tar
 
 .env
 node_modules
+/data

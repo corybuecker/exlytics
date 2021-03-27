@@ -17,7 +17,7 @@ class ExlyticsView(HTTPMethodView):
         database: Pool = app.config.get('db')
 
         await database.execute('''
-            INSERT INTO events(time, metadata) VALUES(now(), $1)
+            INSERT INTO exlytics.events(time, metadata) VALUES(now(), $1)
         ''', dict(args))
         return empty()
 
@@ -31,7 +31,7 @@ class ExlyticsView(HTTPMethodView):
         database: Pool = app.config.get('db')
 
         await database.execute('''
-            INSERT INTO events(time, metadata) VALUES(now(), $1)
+            INSERT INTO exlytics.events(time, metadata) VALUES(now(), $1)
         ''', args)
 
         return empty()

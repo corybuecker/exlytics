@@ -21,4 +21,4 @@ USER exlytics
 
 ENV PORT=5000
 
-CMD ["poetry", "run", "sanic", "--access-logs", "-p", "$PORT", "exlytics.main.app"]
+CMD ["sh", "-c" "poetry run sanic --access-logs -p $PORT exlytics.main.app"]

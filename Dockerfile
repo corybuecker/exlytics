@@ -6,7 +6,7 @@ RUN apk --no-cache add $PACKAGES
 RUN addgroup -g 5000 exlytics
 RUN adduser -h /home/exlytics -G exlytics -u 5000 -D exlytics
 
-COPY --chown=exlytics:exlytics poetry.lock pyproject.toml exlytics/ /home/exlytics
+COPY --chown=exlytics:exlytics poetry.lock pyproject.toml /home/exlytics/
 COPY --chown=exlytics:exlytics exlytics /home/exlytics/exlytics
 
 USER exlytics

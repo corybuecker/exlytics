@@ -1,26 +1,24 @@
-FROM elixir:1.10.4-alpine AS builder
-ARG mix_env=dev
+FROM python:3.9.2-alpine
 
-ENV MIX_HOME /exlytics
-ENV MIX_ENV $mix_env
+ARG PACKAGES="curl vim git alpine-sdk libtool m4 automake autoconf"
+RUN apk --no-cache add $PACKAGES
 
-WORKDIR $MIX_HOME
-COPY . $MIX_HOME
+RUN addgroup -g 5000 exlytics
+RUN adduser -h /home/exlytics -G exlytics -u 5000 -D exlytics
 
-RUN mix local.hex --force
-RUN mix local.rebar --force
-RUN mix deps.get
-RUN mix release
-
-FROM elixir:1.10.4-alpine
-ARG release=/exlytics/_build/dev/rel/exlytics
-
-COPY --from=builder $release /home/exlytics
-
-RUN addgroup -g 5000 exlytics && \
-  adduser -u 5000 -G exlytics -s /bin/sh -D exlytics && \
-  chown -R exlytics:exlytics /home/exlytics
+COPY --chown=exlytics:exlytics poetry.lock pyproject.toml exlytics/ /home/exlytics
+COPY --chown=exlytics:exlytics exlytics /home/exlytics/exlytics
 
 USER exlytics
+WORKDIR /home/exlytics
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+ENV PATH="/home/exlytics/.poetry/bin:$PATH"
+RUN poetry install
 
-CMD ["/home/exlytics/bin/exlytics", "start"]
+USER root
+RUN apk del $PACKAGES
+USER exlytics
+
+ENV PORT=5000
+
+CMD ["poetry", "run", "sanic", "--access-logs", "-p", "$PORT", "exlytics.main.app"]

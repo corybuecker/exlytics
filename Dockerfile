@@ -13,7 +13,7 @@ USER exlytics
 WORKDIR /home/exlytics
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 ENV PATH="/home/exlytics/.poetry/bin:$PATH"
-RUN poetry install
+RUN poetry install --no-dev
 
 USER root
 RUN apk del $PACKAGES
@@ -21,4 +21,4 @@ USER exlytics
 
 ENV PORT=5000
 
-CMD ["sh", "-c" "poetry run sanic --access-logs -p $PORT exlytics.main.app"]
+CMD ["sh", "-c", "poetry run sanic --access-logs -p $PORT exlytics.main.app"]

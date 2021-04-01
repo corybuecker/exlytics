@@ -6,8 +6,5 @@
   "editor.renderWhitespace": "all",
   "editor.fontFamily": "Fira Code",
   "editor.fontSize": 12,
-  "editor.fontLigatures": true,
-  "python.linting.pylintEnabled": false,
-  "python.linting.mypyEnabled": true,
-  "python.linting.enabled": true
+  "editor.fontLigatures": true
 }

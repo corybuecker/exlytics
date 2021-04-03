@@ -12,4 +12,4 @@ jobs:
 
     steps:
       - name: Start job
-        run: kubectl create job
+        run: /home/runner/kubectl create job

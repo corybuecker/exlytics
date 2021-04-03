@@ -2,13 +2,6 @@ defmodule Exlytics.RouterTest do
   use ExUnit.Case, async: true
   use Plug.Test
 
-  alias Ecto.Adapters.SQL.Sandbox
-  alias Exlytics.Data.Repo
-
-  setup do
-    :ok = Sandbox.checkout(Repo)
-  end
-
   test "healthcheck" do
     conn = Plug.Test.conn(:get, "/healthcheck") |> Exlytics.Router.call(%{})
     assert %Plug.Conn{status: 200} = conn

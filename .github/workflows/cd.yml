@@ -5,10 +5,6 @@ on:
     branches:
       - integration
 
-env:
-  CLOUDSDK_COMPUTE_REGION: us-central1
-  CLOUDSDK_COMPUTE_ZONE: us-central1-c
-
 jobs:
   # image:
   #   name: Build image

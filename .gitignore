@@ -25,3 +25,4 @@ collector-*.tar
 .env
 node_modules
 /data
+.elixir_ls

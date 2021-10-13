@@ -24,7 +24,7 @@ defmodule Exlytics.MixProject do
     [
       {:credo, "~> 1.5.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1.0", only: [:dev], runtime: false},
-      {:ecto_sql, "~> 3.6.2"},
+      {:ecto_sql, "~> 3.7.1"},
       {:jason, "~> 1.2.2"},
       {:plug_cowboy, "~> 2.5.0"},
       {:postgrex, ">= 0.0.0"}

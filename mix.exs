@@ -22,7 +22,7 @@ defmodule Exlytics.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:credo, "~> 1.5.5", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.6.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1.0", only: [:dev], runtime: false},
       {:ecto_sql, "~> 3.7.1"},
       {:jason, "~> 1.2.2"},

@@ -1,0 +1,30 @@
+name: Continuous integration
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: bueckered-272522
+          service_account_key: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          export_default_credentials: true
+
+      - run: gcloud auth configure-docker us-central1-docker.pkg.dev -q
+
+      - uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+            us-central1-docker.pkg.dev/bueckered-272522/github-actions-repo/exlytics:${{ github.sha }}
+            us-central1-docker.pkg.dev/bueckered-272522/github-actions-repo/exlytics:latest
+          cache-from: type=registry,ref=us-central1-docker.pkg.dev/bueckered-272522/github-actions-repo/exlytics:latest
+          cache-to: type=inline

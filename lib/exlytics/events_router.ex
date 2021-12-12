@@ -21,6 +21,7 @@ defmodule Exlytics.EventsRouter do
   defp process_event(%Plug.Conn{} = conn) do
     conn
     |> save_event_for_conn()
+    |> Plug.Conn.put_resp_header("x-robots-tag", "noindex, nofollow")
     |> send_resp(201, "")
   end
 

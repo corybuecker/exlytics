@@ -3,28 +3,50 @@ on:
   push:
     branches:
       - main
+      - develop
 
 jobs:
-  build:
-    name: Build image
+  test:
     runs-on: ubuntu-latest
-
+    container: elixir:1.12.1-alpine
+    services:
+      postgres:
+        image: postgres:alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v2
+      - run: |
+          mix local.hex --force
+          mix local.rebar --force
+          mix deps.get
+          mix ecto.create
+          mix ecto.migrate
+          mix test
+        env:
+          DATABASE_CONNECTION_URL: ecto://postgres:postgres@postgres:5432/exlytics_test
+          MIX_ENV: test
 
-      - uses: google-github-actions/setup-gcloud@master
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: docker/setup-buildx-action@v1
+      - uses: google-github-actions/auth@v0.4.0
         with:
-          project_id: bueckered-272522
-          service_account_key: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
-          export_default_credentials: true
-
+          credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+      - uses: google-github-actions/setup-gcloud@v0
       - run: gcloud auth configure-docker us-central1-docker.pkg.dev -q
-
       - uses: docker/build-push-action@v2
         with:
           push: true
           tags: |
             us-central1-docker.pkg.dev/bueckered-272522/github-actions-repo/exlytics:${{ github.sha }}
             us-central1-docker.pkg.dev/bueckered-272522/github-actions-repo/exlytics:latest
-          cache-from: type=registry,ref=us-central1-docker.pkg.dev/bueckered-272522/github-actions-repo/exlytics:latest
-          cache-to: type=inline
+          cache-from: type=registry,ref=us-central1-docker.pkg.dev/bueckered-272522/github-actions-repo/exlytics:buildcache
+          cache-to: type=registry,ref=us-central1-docker.pkg.dev/bueckered-272522/github-actions-repo/exlytics:buildcache,mode=max

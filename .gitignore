@@ -26,3 +26,4 @@ collector-*.tar
 node_modules
 /data
 .elixir_ls
+/sensitive/

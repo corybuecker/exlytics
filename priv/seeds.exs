@@ -19,7 +19,7 @@ Enum.each(0..2000, fn _ ->
       DateTime.from_naive(datetime, "Etc/UTC")
     end
 
-  %Exlytics.Data.Event{
+  %Exlytics.Storage.Postgresql.Event{
     time: datetime,
     metadata: %{
       account_id: "3ecfe3ec-8a01-4a3a-8982-1b6248af39a7",
@@ -29,5 +29,5 @@ Enum.each(0..2000, fn _ ->
       click_link: pages |> Enum.random()
     }
   }
-  |> Exlytics.Data.Repo.insert!()
+  |> Exlytics.Storage.Postgresql.Repo.insert!()
 end)

@@ -8,10 +8,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: elixir:1.12.1-alpine
     services:
       postgres:
         image: postgres:alpine
+        ports:
+          - 5432:5432
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
@@ -21,15 +22,25 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: '24'
+          elixir-version: '1.13.1'
+      - uses: actions/cache@v2
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
       - run: |
-          mix local.hex --force
-          mix local.rebar --force
           mix deps.get
           mix ecto.create
           mix ecto.migrate
           mix test
         env:
-          DATABASE_CONNECTION_URL: ecto://postgres:postgres@postgres:5432/exlytics_test
+          DATABASE_CONNECTION_URL: ecto://postgres:postgres@localhost:5432/exlytics_test
           MIX_ENV: test
 
   build:

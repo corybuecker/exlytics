@@ -3,7 +3,7 @@ defmodule Exlytics.EventsRouterTest do
   use Plug.Test
 
   alias Ecto.Adapters.SQL.Sandbox
-  alias Exlytics.Data.{Event, Repo}
+  alias Exlytics.Storage.Postgresql.{Event, Repo}
 
   setup do
     :ok = Sandbox.checkout(Repo)

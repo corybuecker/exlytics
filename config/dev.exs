@@ -4,7 +4,7 @@ config :exlytics,
   host: "localhost",
   port: "8080"
 
-config :exlytics, Exlytics.Data.Repo,
+config :exlytics, Exlytics.Storage.Postgresql.Repo,
   username: "postgres",
   database: "exlytics",
   # migration_default_prefix: "exlytics",

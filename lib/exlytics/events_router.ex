@@ -1,8 +1,6 @@
 defmodule Exlytics.EventsRouter do
   @moduledoc false
 
-  alias Exlytics.Data.{Event, Repo}
-
   use Plug.Router
   require Logger
 
@@ -26,13 +24,9 @@ defmodule Exlytics.EventsRouter do
   end
 
   defp save_event_for_conn(%Plug.Conn{} = conn) do
-    with changeset <-
-           Event.changeset(%Event{}, %{
-             metadata: conn |> Exlytics.MetadataParser.metadata_from_conn()
-           }) do
-      Logger.info(changeset |> inspect())
-      changeset |> Repo.insert()
-    end
+    conn
+    |> Exlytics.MetadataParser.metadata_from_conn()
+    |> Application.get_env(:exlytics, :storage).save()
 
     conn
   end

@@ -1,4 +1,4 @@
-defmodule Exlytics.Data.Repo do
+defmodule Exlytics.Storage.Postgresql.Repo do
   use Ecto.Repo,
     otp_app: :exlytics,
     adapter: Ecto.Adapters.Postgres

@@ -1,4 +1,4 @@
-defmodule Exlytics.Data.Event do
+defmodule Exlytics.Storage.Postgresql.Event do
   @moduledoc false
 
   use Ecto.Schema

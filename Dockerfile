@@ -1,4 +1,4 @@
-FROM elixir:1.12.1-alpine AS builder
+FROM elixir:1.13.1-alpine AS builder
 ARG mix_env=production
 
 ENV MIX_HOME /exlytics
@@ -12,7 +12,7 @@ RUN mix local.rebar --force
 RUN mix deps.get
 RUN mix release
 
-FROM elixir:1.12.1-alpine
+FROM elixir:1.13.1-alpine
 ARG release=/exlytics/_build/production/rel/exlytics
 
 COPY --from=builder $release /home/exlytics

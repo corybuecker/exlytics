@@ -1,4 +1,4 @@
-defmodule Exlytics.Data.Repo.Migrations.CreateEvents do
+defmodule Exlytics.Storage.Postgresql.Repo.Migrations.CreateEvents do
   use Ecto.Migration
 
   def change do

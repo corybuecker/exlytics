@@ -34,7 +34,8 @@ defmodule Exlytics.Storage.GoogleStorage.Loader do
 
   defp metadata do
     %Object{
-      name: "#{UUID.uuid4()}.json"
+      name: "#{UUID.uuid4()}.json",
+      contentType: "application/jsonl+json"
     }
   end
 

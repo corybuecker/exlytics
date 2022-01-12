@@ -9,6 +9,7 @@ config :exlytics, Exlytics.Storage.Postgresql.Repo,
   pool: Ecto.Adapters.SQL.Sandbox
 
 config :exlytics, storage: Exlytics.Storage.Postgresql
+config :exlytics, time_adapter: Exlytics.Utils.FakeTimeAdapter
 
 config :goth,
   disabled: true

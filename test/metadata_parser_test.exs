@@ -1,4 +1,5 @@
 defmodule Exlytics.MetadataParserTest do
+  alias Exlytics.Utils.FakeTimeAdapter
   use ExUnit.Case, async: true
   use Plug.Test
 
@@ -11,7 +12,7 @@ defmodule Exlytics.MetadataParserTest do
 
     assert metadata == %{
              "host" => "localhost",
-             "time" => Exlytics.Utils.FakeTimeAdapter.current_time()
+             "time" => FakeTimeAdapter.current_time()
            }
   end
 
@@ -34,7 +35,7 @@ defmodule Exlytics.MetadataParserTest do
     assert metadata == %{
              "host" => "localhost",
              "test" => true,
-             "time" => Exlytics.Utils.FakeTimeAdapter.current_time()
+             "time" => FakeTimeAdapter.current_time()
            }
   end
 
@@ -47,7 +48,7 @@ defmodule Exlytics.MetadataParserTest do
     assert metadata == %{
              "user_agent" => "localhost",
              "test_value" => true,
-             "time" => Exlytics.Utils.FakeTimeAdapter.current_time()
+             "time" => FakeTimeAdapter.current_time()
            }
   end
 
@@ -62,7 +63,7 @@ defmodule Exlytics.MetadataParserTest do
     assert metadata == %{
              "host" => "localhost",
              "query" => "true",
-             "time" => Exlytics.Utils.FakeTimeAdapter.current_time()
+             "time" => FakeTimeAdapter.current_time()
            }
   end
 end

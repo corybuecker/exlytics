@@ -1,0 +1,47 @@
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: '24'
+          elixir-version: '1.13.3'
+      - uses: actions/cache@v2
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+      
+      - run: mix deps.get
+      - run: mix hex.outdated
+      - run: mix format --check-formatted
+      - run: mix credo --strict
+      
+      - run: |
+          mix ecto.create
+          mix ecto.migrate
+          mix test
+        env:
+          DATABASE_CONNECTION_URL: ecto://postgres:postgres@localhost:5432/exlytics_test
+          MIX_ENV: test

@@ -1,21 +1,17 @@
 defmodule Exlytics.Storage.GoogleStorage.Loader do
+  @moduledoc false
+
   alias Exlytics.Storage.GoogleStorage.Cache
   alias GoogleApi.Storage.V1.Api.Objects
   alias GoogleApi.Storage.V1.Connection
   alias GoogleApi.Storage.V1.Model.Object
-
   require Logger
 
   def load do
-    events = GenServer.call(Cache, :flush)
-
-    cond do
-      length(events) == 0 -> Logger.debug("no events, not writing")
-      true -> write_events(events)
-    end
+    GenServer.call(Cache, :flush) |> write_events()
   end
 
-  defp write_events(events) do
+  defp write_events(events) when is_list(events) and length(events) > 0 do
     Logger.debug("received #{length(events)} events")
 
     with body <- events |> events_to_data(),
@@ -24,12 +20,16 @@ defmodule Exlytics.Storage.GoogleStorage.Loader do
          connection <- Connection.new(token) do
       Objects.storage_objects_insert_iodata(
         connection,
-        "bueckered-exlytics-storage",
+        container(),
         "multipart",
         metadata(),
         body
       )
     end
+  end
+
+  defp write_events(_) do
+    Logger.debug("no events, or invalid type, not writing")
   end
 
   defp metadata do
@@ -41,9 +41,12 @@ defmodule Exlytics.Storage.GoogleStorage.Loader do
 
   defp events_to_data(events) when is_list(events) do
     events
-    |> Enum.map(fn event ->
+    |> Enum.map_join("\n", fn event ->
       Jason.encode!(event)
     end)
-    |> Enum.join("\n")
+  end
+
+  defp container do
+    Application.get_env(:exlytics, :storage).container()
   end
 end

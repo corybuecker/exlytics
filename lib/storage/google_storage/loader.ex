@@ -24,7 +24,7 @@ defmodule Exlytics.Storage.GoogleStorage.Loader do
          connection <- Connection.new(token) do
       Objects.storage_objects_insert_iodata(
         connection,
-        "bueckered-exlytics",
+        "bueckered-exlytics-storage",
         "multipart",
         metadata(),
         body

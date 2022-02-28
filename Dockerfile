@@ -1,18 +1,22 @@
-FROM elixir:1.13.1-alpine AS builder
+FROM elixir:1.13.2-alpine AS builder
 ARG mix_env=production
 
 ENV MIX_HOME /exlytics
 ENV MIX_ENV $mix_env
 
-WORKDIR $MIX_HOME
-COPY . $MIX_HOME
-
 RUN mix local.hex --force
 RUN mix local.rebar --force
+
+WORKDIR $MIX_HOME
+COPY mix.exs mix.lock $MIX_HOME
+
 RUN mix deps.get
+RUN mix deps.compile
+
+COPY . $MIX_HOME
 RUN mix release
 
-FROM elixir:1.13.1-alpine
+FROM elixir:1.13.2-alpine
 ARG release=/exlytics/_build/production/rel/exlytics
 
 COPY --from=builder $release /home/exlytics

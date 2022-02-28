@@ -1,6 +1,9 @@
 defmodule Exlytics.Storage.GoogleStorage.Cache do
+  @moduledoc false
+
   use GenServer
 
+  @spec start_link(any) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(_initial_state) do
     GenServer.start_link(Exlytics.Storage.GoogleStorage.Cache, [],
       name: Exlytics.Storage.GoogleStorage.Cache
@@ -8,6 +11,7 @@ defmodule Exlytics.Storage.GoogleStorage.Cache do
   end
 
   @impl true
+  @spec init(any) :: {:ok, any}
   def init(initial_state) do
     {:ok, initial_state}
   end

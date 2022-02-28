@@ -1,13 +1,17 @@
 defmodule Exlytics.Storage.Postgresql do
+  @moduledoc false
+
+  alias Exlytics.Storage.Postgresql.Event
+  alias Exlytics.Storage.Postgresql.Repo
   require Logger
 
   def save(event) when is_map(event) do
     with changeset <-
-           Exlytics.Storage.Postgresql.Event.changeset(%Exlytics.Storage.Postgresql.Event{}, %{
+           Event.changeset(%Event{}, %{
              metadata: event
            }) do
       Logger.info(changeset |> inspect())
-      changeset |> Exlytics.Storage.Postgresql.Repo.insert()
+      changeset |> Repo.insert()
     end
   end
 end

@@ -5,7 +5,7 @@ defmodule Exlytics.MixProject do
     [
       app: :exlytics,
       version: "1.0.0",
-      elixir: "1.13.1",
+      elixir: "1.13.3",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -22,7 +22,7 @@ defmodule Exlytics.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:certifi, "~> 2.8"},
+      {:certifi, "~> 2.9"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev], runtime: false},
       {:ecto_sql, "~> 3.7"},
@@ -30,7 +30,6 @@ defmodule Exlytics.MixProject do
       {:goth, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:postgrex, ">= 0.0.0"},
-      {:quantum, "~> 3.0"},
       {:uuid, "~> 1.1"}
     ]
   end

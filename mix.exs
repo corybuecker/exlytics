@@ -30,6 +30,7 @@ defmodule Exlytics.MixProject do
       {:goth, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:postgrex, ">= 0.0.0"},
+      {:quantum, "~> 3.0"},
       {:uuid, "~> 1.1"}
     ]
   end

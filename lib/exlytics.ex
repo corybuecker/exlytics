@@ -9,8 +9,10 @@ defmodule Exlytics do
           {:scheme, :http},
           {:plug, Exlytics.Router},
           {:port, Application.fetch_env!(:exlytics, :port) |> String.to_integer()}
-        ])
-      ] ++ storage_engine()
+        ]),
+        Scheduler
+      ] ++
+        storage_engine()
 
     Supervisor.start_link(children, [{:strategy, :one_for_one}])
   end

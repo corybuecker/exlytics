@@ -8,7 +8,7 @@ defmodule Exlytics.Storage.Postgresql.Event do
   @primary_key false
   # @schema_prefix "exlytics"
   schema "events" do
-    field(:time, :utc_datetime_usec, null: false)
+    field(:time, :utc_datetime_usec)
     field(:metadata, :map)
     timestamps()
   end

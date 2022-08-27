@@ -2,13 +2,6 @@ defmodule Exlytics.EventsRouterTest do
   use ExUnit.Case, async: true
   use Plug.Test
 
-  alias Ecto.Adapters.SQL.Sandbox
-  alias Exlytics.Storage.Postgresql.{Event, Repo}
-
-  setup do
-    :ok = Sandbox.checkout(Repo)
-  end
-
   test "saves a GET event" do
     Plug.Test.conn(:get, "/")
     |> Plug.Conn.put_req_header("host", "localhost")
@@ -16,8 +9,7 @@ defmodule Exlytics.EventsRouterTest do
     |> Plug.Conn.put_req_header("x-forwarded-proto", "https")
     |> Exlytics.EventsRouter.call([])
 
-    event = Event |> Ecto.Query.last(:inserted_at) |> Repo.one()
-    assert %Event{metadata: %{"host" => "localhost"}} = event
+    assert_received :event
   end
 
   test "saves a POST event with a body" do
@@ -28,7 +20,6 @@ defmodule Exlytics.EventsRouterTest do
     |> Plug.Conn.put_req_header("x-forwarded-proto", "https")
     |> Exlytics.EventsRouter.call([])
 
-    event = Event |> Ecto.Query.last(:inserted_at) |> Repo.one()
-    assert %Event{metadata: %{"host" => "localhost", "test" => true}} = event
+    assert_received :event
   end
 end

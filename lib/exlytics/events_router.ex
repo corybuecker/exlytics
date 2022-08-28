@@ -26,7 +26,7 @@ defmodule Exlytics.EventsRouter do
   defp save_event_for_conn(%Plug.Conn{} = conn) do
     conn
     |> Exlytics.MetadataParser.metadata_from_conn()
-    |> Application.get_env(:exlytics, :storage).save()
+    |> Application.get_env(:exlytics, :cache).save()
 
     conn
   end

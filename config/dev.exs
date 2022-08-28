@@ -6,4 +6,4 @@ config :exlytics,
 
 config :exlytics,
   storage: Exlytics.Storage.GoogleStorage,
-  container: "bueckered-exlytics-development"
+  container: "bueckered-exlytics-storage-development"

@@ -1,35 +1,53 @@
 defmodule Exlytics.Storage.GoogleStorage.Loader do
   @moduledoc false
 
-  alias Exlytics.Storage.GoogleStorage.Cache
   alias GoogleApi.Storage.V1.Api.Objects
   alias GoogleApi.Storage.V1.Connection
   alias GoogleApi.Storage.V1.Model.Object
   require Logger
 
   def load do
-    GenServer.call(Cache, :flush) |> write_events()
+    Application.fetch_env!(:exlytics, :cache).flush() |> write_events() |> resave_failed_events()
   end
 
-  defp write_events(events) when is_list(events) and length(events) > 0 do
+  defp write_events({:ok, events}) when is_list(events) and length(events) > 0 do
     Logger.debug("received #{length(events)} events")
 
     with body <- events |> events_to_data(),
-         {:ok, %{token: token}} <-
-           Goth.Token.for_scope("https://www.googleapis.com/auth/devstorage.read_write"),
+         %{token: token} <- Goth.fetch!(Exlytics.Goth),
          connection <- Connection.new(token) do
-      Objects.storage_objects_insert_iodata(
-        connection,
-        container(),
-        "multipart",
-        metadata(),
-        body
-      )
+      case Objects.storage_objects_insert_iodata(
+             connection,
+             container(),
+             "multipart",
+             metadata(),
+             body
+           ) do
+        {:error, error} ->
+          Logger.error(error |> inspect)
+          {:error, events}
+
+        _ ->
+          {:ok, []}
+      end
+    else
+      error ->
+        Logger.error(error |> inspect)
+        {:error, events}
     end
   end
 
-  defp write_events(_) do
-    Logger.debug("no events, or invalid type, not writing")
+  defp write_events(anything) do
+    Logger.debug(anything |> inspect())
+    Logger.info("no events, or invalid type, not writing")
+  end
+
+  defp resave_failed_events({:error, events}) do
+    events |> Enum.each(fn event -> Application.get_env(:exlytics, :cache).save(event) end)
+  end
+
+  defp resave_failed_events(_) do
+    {:ok, []}
   end
 
   defp metadata do
@@ -40,10 +58,7 @@ defmodule Exlytics.Storage.GoogleStorage.Loader do
   end
 
   defp events_to_data(events) when is_list(events) do
-    events
-    |> Enum.map_join("\n", fn event ->
-      Jason.encode!(event)
-    end)
+    events |> Enum.join("\n")
   end
 
   defp container do

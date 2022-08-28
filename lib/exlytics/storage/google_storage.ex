@@ -10,6 +10,6 @@ defmodule Exlytics.Storage.GoogleStorage do
 
   @impl Exlytics.Storage
   def container do
-    Application.get_env(:exlytics, :container, "bueckered-exlytics-development")
+    Application.get_env(:exlytics, :container, "bueckered-exlytics-storage-development")
   end
 end

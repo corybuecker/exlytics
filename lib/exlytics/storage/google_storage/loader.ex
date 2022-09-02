@@ -43,7 +43,10 @@ defmodule Exlytics.Storage.GoogleStorage.Loader do
   end
 
   defp resave_failed_events({:error, events}) do
-    events |> Enum.each(fn event -> Application.get_env(:exlytics, :cache).save(event) end)
+    events
+    |> Enum.each(fn event ->
+      event |> Jason.decode!() |> Application.get_env(:exlytics, :cache).save()
+    end)
   end
 
   defp resave_failed_events(_) do

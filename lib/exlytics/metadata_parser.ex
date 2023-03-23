@@ -1,14 +1,19 @@
 defmodule Exlytics.MetadataParser do
   @moduledoc false
-  @allowed_headers ["host", "origin", "referer", "user-agent"]
+  @allowed_headers ["origin", "referer", "user-agent"]
 
   @spec metadata_from_conn(Plug.Conn.t()) :: %{}
   def metadata_from_conn(%Plug.Conn{} = conn) do
     %{}
+    |> Map.merge(map_from_connection(conn))
     |> Map.merge(map_from_headers(conn))
     |> Map.merge(map_from_query(conn))
     |> Map.merge(map_from_body(conn))
     |> Map.merge(%{"time" => Application.get_env(:exlytics, :time_adapter).current_time()})
+  end
+
+  defp map_from_connection(%Plug.Conn{host: host} = conn) do
+    %{"host" => host}
   end
 
   defp map_from_headers(%Plug.Conn{} = conn) do

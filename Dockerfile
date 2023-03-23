@@ -1,4 +1,4 @@
-FROM elixir:1.13.4-alpine AS builder
+FROM elixir:1.14.3-alpine AS builder
 ARG mix_env=production
 
 ENV MIX_HOME /exlytics
@@ -16,7 +16,7 @@ RUN mix deps.compile
 COPY . $MIX_HOME
 RUN mix release
 
-FROM elixir:1.13.4-alpine
+FROM elixir:1.14.3-alpine
 ARG release=/exlytics/_build/production/rel/exlytics
 
 COPY --from=builder $release /home/exlytics

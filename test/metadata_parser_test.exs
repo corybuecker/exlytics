@@ -6,12 +6,11 @@ defmodule Exlytics.MetadataParserTest do
   test "parses a GET request" do
     metadata =
       Plug.Test.conn(:get, "/")
-      |> Plug.Conn.put_req_header("host", "localhost")
       |> Plug.Conn.put_req_header("ip", "1.2.3.4")
       |> Exlytics.MetadataParser.metadata_from_conn()
 
     assert metadata == %{
-             "host" => "localhost",
+             "host" => "www.example.com",
              "time" => FakeTimeAdapter.current_time()
            }
   end
@@ -27,13 +26,12 @@ defmodule Exlytics.MetadataParserTest do
   test "parses a POST request" do
     metadata =
       Plug.Test.conn(:post, "/", %{test: true} |> Jason.encode!())
-      |> Plug.Conn.put_req_header("host", "localhost")
       |> Plug.Conn.put_req_header("ip", "1.2.3.4")
       |> Plug.Conn.put_req_header("content-type", "text/plain")
       |> Exlytics.MetadataParser.metadata_from_conn()
 
     assert metadata == %{
-             "host" => "localhost",
+             "host" => "www.example.com",
              "test" => true,
              "time" => FakeTimeAdapter.current_time()
            }
@@ -46,6 +44,7 @@ defmodule Exlytics.MetadataParserTest do
       |> Exlytics.MetadataParser.metadata_from_conn()
 
     assert metadata == %{
+             "host" => "www.example.com",
              "user_agent" => "localhost",
              "test_value" => true,
              "time" => FakeTimeAdapter.current_time()
@@ -55,13 +54,12 @@ defmodule Exlytics.MetadataParserTest do
   test "handles an invalid body" do
     metadata =
       Plug.Test.conn(:post, "/?query=true", "this is not JSON")
-      |> Plug.Conn.put_req_header("host", "localhost")
       |> Plug.Conn.put_req_header("ip", "1.2.3.4")
       |> Plug.Conn.put_req_header("content-type", "text/plain")
       |> Exlytics.MetadataParser.metadata_from_conn()
 
     assert metadata == %{
-             "host" => "localhost",
+             "host" => "www.example.com",
              "query" => "true",
              "time" => FakeTimeAdapter.current_time()
            }

@@ -26,7 +26,7 @@ defmodule Exlytics.MixProject do
       {:certifi, "~> 2.9"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev], runtime: false},
-      {:google_api_storage, "~> 0.33"},
+      {:google_api_storage, "~> 0.34"},
       {:goth, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:redix, "~> 1.1"},

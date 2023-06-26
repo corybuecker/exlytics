@@ -4,8 +4,8 @@ defmodule Exlytics.MixProject do
   def project do
     [
       app: :exlytics,
-      version: "1.0.1",
-      elixir: "1.14.3",
+      version: "1.0.2",
+      elixir: "1.15.0",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]

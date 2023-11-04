@@ -1,9 +1,12 @@
 defmodule Exlytics.Cache.Redis do
   @moduledoc false
   @behaviour Exlytics.Cache
+  require Logger
 
   @impl Exlytics.Cache
   def save(event) when is_map(event) do
+    Logger.debug(event |> inspect())
+
     event |> Jason.encode() |> maybe() |> save_encoded() |> maybe()
   end
 

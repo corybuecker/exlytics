@@ -5,7 +5,7 @@ defmodule Exlytics.MixProject do
     [
       app: :exlytics,
       version: "1.0.2",
-      elixir: "1.15.4",
+      elixir: "1.15.7",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]

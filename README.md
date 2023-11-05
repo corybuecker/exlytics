@@ -1,6 +1,6 @@
 # Exlytics
 
-Exlytics is a very simple, privacy-focused tool to gather web analytics;
+Exlytics is a simple, privacy-focused tool to gather web analytics;
 anything from page views to click-stream events. The events are cached in Redis
 and flushed to Google Cloud Storage on a regular basis.
 

@@ -1,0 +1,4 @@
+CREATE TABLE events (
+    event_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    event JSONB NOT NULL
+);

@@ -1,4 +1,8 @@
 use httparse::{Header, Request, Status, EMPTY_HEADER};
+use mongodb::bson::{doc, DateTime};
+use mongodb::{Collection, Database};
+use serde::Serialize;
+use std::env;
 use std::error::Error;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::join;
@@ -14,13 +18,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     let _ = tracing::subscriber::set_global_default(subscriber);
 
     let runtime = Runtime::new()?;
+    let database_url = env::var("DATABASE_URL")?;
 
     runtime.block_on(async {
+        let database = mongodb::Client::with_uri_str(database_url).await?;
         let listener = TcpListener::bind("0.0.0.0:8000").await?;
 
         loop {
             if let Ok((stream, _)) = listener.accept().await {
-                spawn(handle_request(stream));
+                let database = database.database("exlytics");
+                spawn(handle_request(stream, database));
             }
         }
     })
@@ -28,13 +35,19 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 struct RequestError {}
 
+impl From<mongodb::error::Error> for RequestError {
+    fn from(_error: mongodb::error::Error) -> RequestError {
+        RequestError {}
+    }
+}
+
 impl From<httparse::Error> for RequestError {
     fn from(_error: httparse::Error) -> RequestError {
         RequestError {}
     }
 }
 
-async fn handle_request(mut stream: TcpStream) -> Result<(), RequestError> {
+async fn handle_request(mut stream: TcpStream, database: Database) -> Result<(), RequestError> {
     let mut buf = Vec::with_capacity(256);
 
     loop {
@@ -54,20 +67,25 @@ async fn handle_request(mut stream: TcpStream) -> Result<(), RequestError> {
         let response = "HTTP/1.1 200 OK\n".as_bytes();
         let _ = stream.write_all(response).await;
     });
-    let request_storage = spawn(async move { store_request(&buf).await });
+    let request_storage = spawn(async move {
+        let collection = database.collection::<Event>("events");
+        store_request(&buf, collection).await
+    });
 
     let (_r1, _r2) = join!(response_writer, request_storage);
 
     Ok(())
 }
 
-async fn store_request(buffer: &Vec<u8>) -> Result<(), RequestError> {
+async fn store_request(
+    buffer: &Vec<u8>,
+    collection: Collection<Event>,
+) -> Result<(), RequestError> {
     let mut headers = [EMPTY_HEADER; 64];
-
-    let request = Request::new(&mut headers).parse(buffer)?;
+    let mut request = Request::new(&mut headers);
 
     let mut body: Option<usize> = None;
-    if let Status::Complete(n) = request {
+    if let Status::Complete(n) = request.parse(buffer)? {
         body = Some(n);
     };
 
@@ -78,13 +96,43 @@ async fn store_request(buffer: &Vec<u8>) -> Result<(), RequestError> {
         }
     }
 
-    let headers: Vec<httparse::Header> = headers
+    let headers: Vec<httparse::Header> = request
+        .headers
         .iter()
         .cloned()
         .filter(|h| h.value.len() > 0)
         .collect();
 
     debug!("{:#?}", headers);
+    debug!("{:#?}", request.path);
+
+    let host = headers
+        .iter()
+        .find(|h| h.name == "Host")
+        .unwrap_or(&Header {
+            name: "Host",
+            value: b"",
+        });
+
+    let mut path = None;
+    if let Some(p) = request.path {
+        path = Some(p.to_owned());
+    };
+
+    collection
+        .insert_one(Event {
+            ts: DateTime::now(),
+            host: String::from_utf8(host.value.to_vec()).unwrap(),
+            path,
+        })
+        .await?;
 
     Ok(())
+}
+
+#[derive(Serialize)]
+struct Event {
+    ts: DateTime,
+    host: String,
+    path: Option<String>,
 }

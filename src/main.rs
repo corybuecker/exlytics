@@ -64,8 +64,10 @@ async fn handle_request(mut stream: TcpStream, database: Database) -> Result<(),
     }
 
     let response_writer = spawn(async move {
-        let response = "HTTP/1.1 200 OK\n".as_bytes();
+        let response = "HTTP/1.1 204 No Content\r\n\r\n".as_bytes();
         let _ = stream.write_all(response).await;
+        let _ = stream.flush().await;
+        let _ = stream.shutdown().await;
     });
     let request_storage = spawn(async move {
         let collection = database.collection::<Event>("events");

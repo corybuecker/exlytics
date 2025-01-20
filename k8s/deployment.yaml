@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exlytics
+  namespace: exlytics
+  labels:
+    app: exlytics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: exlytics
+  template:
+    metadata:
+      labels:
+        app: exlytics
+    spec:
+      containers:
+      - name: exlytics
+        image: ghcr.io/corybuecker/exlytics:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: exlytics
+        resources:
+          limits:
+            memory: 512M
+            cpu: 200m
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault

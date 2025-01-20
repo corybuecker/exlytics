@@ -117,13 +117,19 @@ async fn store_request(
     let mut path = None;
     if let Some(p) = request.path {
         path = Some(p.to_owned());
-    };
+    }
+
+    let mut method = None;
+    if let Some(p) = request.method {
+        method = Some(p.to_owned());
+    }
 
     collection
         .insert_one(Event {
             ts: DateTime::now(),
             host: String::from_utf8(host.value.to_vec()).unwrap(),
             path,
+            method,
         })
         .await?;
 
@@ -134,5 +140,6 @@ async fn store_request(
 struct Event {
     ts: DateTime,
     host: String,
+    method: Option<String>,
     path: Option<String>,
 }

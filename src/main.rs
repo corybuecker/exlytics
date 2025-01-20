@@ -1,5 +1,7 @@
+use httparse::{Header, Request, Status, EMPTY_HEADER};
 use std::error::Error;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::join;
 use tokio::net::TcpStream;
 use tokio::{net::TcpListener, runtime::Runtime, spawn};
 use tracing::{debug, Level};
@@ -26,6 +28,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 struct RequestError {}
 
+impl From<httparse::Error> for RequestError {
+    fn from(_error: httparse::Error) -> RequestError {
+        RequestError {}
+    }
+}
+
 async fn handle_request(mut stream: TcpStream) -> Result<(), RequestError> {
     let mut buf = Vec::with_capacity(256);
 
@@ -42,13 +50,41 @@ async fn handle_request(mut stream: TcpStream) -> Result<(), RequestError> {
         }
     }
 
-    if let Ok(request) = String::from_utf8(buf) {
-        debug!("{}", request);
+    let response_writer = spawn(async move {
+        let response = "HTTP/1.1 200 OK\n".as_bytes();
+        let _ = stream.write_all(response).await;
+    });
+    let request_storage = spawn(async move { store_request(&buf).await });
+
+    let (_r1, _r2) = join!(response_writer, request_storage);
+
+    Ok(())
+}
+
+async fn store_request(buffer: &Vec<u8>) -> Result<(), RequestError> {
+    let mut headers = [EMPTY_HEADER; 64];
+
+    let request = Request::new(&mut headers).parse(buffer)?;
+
+    let mut body: Option<usize> = None;
+    if let Status::Complete(n) = request {
+        body = Some(n);
+    };
+
+    if let Some(n) = body {
+        if buffer.len() > n {
+            let (_, body) = buffer.split_at(n);
+            debug!("{:#?}", String::from_utf8(body.to_vec()).unwrap());
+        }
     }
 
-    let _ = stream
-        .write_all("HTTP/1.1 200 OK\n".to_string().as_bytes())
-        .await;
+    let headers: Vec<httparse::Header> = headers
+        .iter()
+        .cloned()
+        .filter(|h| h.value.len() > 0)
+        .collect();
+
+    debug!("{:#?}", headers);
 
     Ok(())
 }

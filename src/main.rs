@@ -1,7 +1,8 @@
 use httparse::{Header, Request, Status, EMPTY_HEADER};
 use mongodb::bson::{doc, DateTime};
 use mongodb::{Collection, Database};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use serde_json::from_str;
 use std::env;
 use std::error::Error;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -79,6 +80,17 @@ async fn handle_request(mut stream: TcpStream, database: Database) -> Result<(),
     Ok(())
 }
 
+fn extract_header_value(headers: &Vec<Header>, name: &str) -> Option<String> {
+    if let Some(header) = headers.iter().find(|h| h.name == name) {
+        let Ok(value) = String::from_utf8(header.value.to_vec()) else {
+            return None;
+        };
+        return Some(value);
+    }
+
+    None
+}
+
 async fn store_request(
     buffer: &Vec<u8>,
     collection: Collection<Event>,
@@ -91,51 +103,45 @@ async fn store_request(
         body = Some(n);
     };
 
+    let mut payload: Option<Payload> = None;
     if let Some(n) = body {
         if buffer.len() > n {
             let (_, body) = buffer.split_at(n);
-            debug!("{:#?}", String::from_utf8(body.to_vec()).unwrap());
+            if let Ok(body) = String::from_utf8(body.to_vec()) {
+                if let Ok(p) = from_str::<Payload>(&body) {
+                    payload = Some(p);
+                }
+            }
         }
     }
 
-    let headers: Vec<httparse::Header> = request
+    let _headers: Vec<httparse::Header> = request
         .headers
         .iter()
         .cloned()
         .filter(|h| h.value.len() > 0)
         .collect();
 
-    debug!("{:#?}", headers);
-    debug!("{:#?}", request.path);
-
-    let host = headers
-        .iter()
-        .find(|h| h.name == "Host")
-        .unwrap_or(&Header {
-            name: "Host",
-            value: b"",
-        });
-
-    let mut path = None;
-    if let Some(p) = request.path {
-        path = Some(p.to_owned());
+    if let Some(payload) = payload {
+        collection
+            .insert_one(Event {
+                ts: DateTime::now(),
+                host: payload.host,
+                path: payload.path,
+                method: payload.method,
+                event: payload.event,
+            })
+            .await?;
     }
-
-    let mut method = None;
-    if let Some(p) = request.method {
-        method = Some(p.to_owned());
-    }
-
-    collection
-        .insert_one(Event {
-            ts: DateTime::now(),
-            host: String::from_utf8(host.value.to_vec()).unwrap(),
-            path,
-            method,
-        })
-        .await?;
-
     Ok(())
+}
+
+#[derive(Deserialize, Debug)]
+struct Payload {
+    host: String,
+    method: Option<String>,
+    path: Option<String>,
+    event: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -144,4 +150,5 @@ struct Event {
     host: String,
     method: Option<String>,
     path: Option<String>,
+    event: Option<String>,
 }

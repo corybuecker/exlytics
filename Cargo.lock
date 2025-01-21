@@ -385,6 +385,7 @@ dependencies = [
  "httparse",
  "mongodb",
  "serde",
+ "serde_json",
  "tokio",
  "tracing",
  "tracing-subscriber",

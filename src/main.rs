@@ -1,15 +1,16 @@
-use httparse::{Header, Request, Status, EMPTY_HEADER};
+use httparse::{Request, Status, EMPTY_HEADER};
 use mongodb::bson::{doc, DateTime};
 use mongodb::{Collection, Database};
 use serde::{Deserialize, Serialize};
 use serde_json::from_str;
 use std::env;
 use std::error::Error;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio::join;
+use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
+use tokio::signal::unix::{signal, SignalKind};
+use tokio::{join, select};
 use tokio::{net::TcpListener, runtime::Runtime, spawn};
-use tracing::{debug, Level};
+use tracing::{error, Level};
 use tracing_subscriber::FmtSubscriber;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -22,16 +23,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let database_url = env::var("DATABASE_URL")?;
 
     runtime.block_on(async {
-        let database = mongodb::Client::with_uri_str(database_url).await?;
-        let listener = TcpListener::bind("0.0.0.0:8000").await?;
-
-        loop {
-            if let Ok((stream, _)) = listener.accept().await {
-                let database = database.database("exlytics");
-                spawn(handle_request(stream, database));
-            }
+        select! {
+         _ = run_listener(database_url) => {}
+         _ = signal_listener() => {}
         }
-    })
+    });
+
+    Ok(())
 }
 
 struct RequestError {}
@@ -42,53 +40,94 @@ impl From<mongodb::error::Error> for RequestError {
     }
 }
 
+impl From<std::io::Error> for RequestError {
+    fn from(_error: std::io::Error) -> RequestError {
+        RequestError {}
+    }
+}
 impl From<httparse::Error> for RequestError {
     fn from(_error: httparse::Error) -> RequestError {
         RequestError {}
     }
 }
 
-async fn handle_request(mut stream: TcpStream, database: Database) -> Result<(), RequestError> {
-    let mut buf = Vec::with_capacity(256);
+async fn signal_listener() -> Result<u8, Box<dyn Error>> {
+    let mut signal = signal(SignalKind::terminate())?;
+
+    signal.recv().await;
+    Ok(0)
+}
+
+async fn run_listener(database_url: String) -> Result<(), Box<dyn Error>> {
+    let database = mongodb::Client::with_uri_str(database_url).await?;
+    let listener = TcpListener::bind("0.0.0.0:8001").await?;
 
     loop {
-        match stream.read_buf(&mut buf).await {
-            Ok(0) => break,
-            Ok(n) => {
-                if n < 256 {
-                    break;
-                }
-                continue;
-            }
-            Err(_) => return Err(RequestError {}),
+        if let Ok((stream, _)) = listener.accept().await {
+            let database = database.database("exlytics");
+            spawn(handle_request(stream, database));
         }
+    }
+}
+
+async fn handle_request(mut stream: TcpStream, database: Database) -> Result<(), RequestError> {
+    let mut request_buffer: Vec<u8> = Vec::with_capacity(128);
+
+    loop {
+        stream.readable().await?;
+
+        let mut read_buffer = Vec::with_capacity(128);
+        match stream.try_read_buf(&mut read_buffer) {
+            Ok(_) => {
+                request_buffer.append(&mut read_buffer);
+            }
+            Err(err) => {
+                error!("{:#?}", err);
+            }
+        }
+
+        let mut headers = [httparse::EMPTY_HEADER; 128];
+        let mut req = httparse::Request::new(&mut headers);
+
+        let res = req.parse(&request_buffer)?;
+
+        if res.is_partial() {
+            continue;
+        }
+
+        let Status::Complete(res) = res else {
+            return Err(RequestError {});
+        };
+
+        let Some(content_length): Option<usize> = headers
+            .iter()
+            .find(|h| h.name.to_lowercase() == "content-length")
+            .and_then(|h| Some(String::from_utf8(h.value.to_vec()).ok()?))
+            .and_then(|h| Some(h.parse::<usize>().ok()?))
+        else {
+            return Err(RequestError {});
+        };
+        if request_buffer.len() < content_length + res {
+            continue;
+        }
+
+        break;
     }
 
     let response_writer = spawn(async move {
-        let response = "HTTP/1.1 204 No Content\r\n\r\n".as_bytes();
+        let response = "HTTP/1.1 200 OK\r\n\r\n".as_bytes();
         let _ = stream.write_all(response).await;
         let _ = stream.flush().await;
         let _ = stream.shutdown().await;
     });
     let request_storage = spawn(async move {
         let collection = database.collection::<Event>("events");
-        store_request(&buf, collection).await
+        store_request(&request_buffer, collection).await
     });
 
     let (_r1, _r2) = join!(response_writer, request_storage);
 
     Ok(())
-}
-
-fn extract_header_value(headers: &Vec<Header>, name: &str) -> Option<String> {
-    if let Some(header) = headers.iter().find(|h| h.name == name) {
-        let Ok(value) = String::from_utf8(header.value.to_vec()) else {
-            return None;
-        };
-        return Some(value);
-    }
-
-    None
 }
 
 async fn store_request(

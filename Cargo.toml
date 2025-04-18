@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-anyhow = { version = "1.0.97" }
+anyhow = { version = "1.0.98" }
 axum = { version = "0.8.3", default-features = false, features = ["http1", "tokio", "tracing", "json"] }
 opentelemetry = { version = "0.29.1" }
 opentelemetry-otlp = { version = "0.29.0" }

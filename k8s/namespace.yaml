@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: exlytics
+  labels:
+    name: exlytics
+    pod-security.kubernetes.io/warn: restricted

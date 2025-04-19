@@ -34,15 +34,19 @@ async fn shutdown_handle(meter_provider: SdkMeterProvider) {
 async fn handler(State(state): State<AppState>, body: String) -> AppResponse {
     let event = serde_json::from_str::<serde_json::Value>(&body)
         .map_err(|_| AppErrors::BadEventData(body.clone()))?;
-    let event = tokio_postgres::types::Json(event);
-    let query = "INSERT INTO events (event, ts) VALUES ($1, now())";
 
-    spawn(async move { state.db.execute(query, &[&event]).await });
+    spawn(async move {
+        let event = tokio_postgres::types::Json(event);
+        let query = "INSERT INTO events (event, ts) VALUES ($1, now())";
+
+        state.db.execute(query, &[&event]).await
+    });
+
     Ok(StatusCode::ACCEPTED.into_response())
 }
 
 async fn server_handle(state: AppState) {
-    let listener: TcpListener = TcpListener::bind("0.0.0.0:8001").await.unwrap();
+    let listener: TcpListener = TcpListener::bind("0.0.0.0:8000").await.unwrap();
     let service = Router::new()
         .route("/{key}", post(handler))
         .route("/", post(handler))
@@ -62,7 +66,7 @@ async fn main() {
         .await
         .expect("Failed to connect to Postgres");
 
-    tokio::spawn(async move {
+    spawn(async move {
         if let Err(e) = connection.await {
             eprintln!("Postgres connection error: {}", e);
         }

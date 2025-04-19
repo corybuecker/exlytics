@@ -16,24 +16,24 @@ spec:
         app: exlytics
     spec:
       containers:
-      - name: exlytics
-        image: corybuecker/exlytics:latest
-        imagePullPolicy: Always
-        ports:
-        - name: http
-          containerPort: 8001
-        envFrom:
-        - secretRef:
-            name: exlytics
-        resources:
-          limits:
-            memory: 512M
-            cpu: 200m
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-          runAsNonRoot: true
-          seccompProfile:
-            type: RuntimeDefault
+        - name: exlytics
+          image: ghcr.io/corybuecker/exlytics@sha256:532f09f632e3d5fa738c812125b9f2beabdcddc213c4d4e02c5dfe5902b842d0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: exlytics
+          resources:
+            limits:
+              memory: 384M
+              cpu: 100m
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault

@@ -3,13 +3,17 @@ use opentelemetry::global;
 use opentelemetry_otlp::{MetricExporter, Protocol, WithExportConfig};
 use opentelemetry_sdk::{Resource, metrics::SdkMeterProvider};
 use tracing::level_filters::LevelFilter;
-use tracing_subscriber::{Layer, layer::SubscriberExt, util::SubscriberInitExt};
+use tracing_subscriber::{Layer, filter, layer::SubscriberExt, util::SubscriberInitExt};
 
 pub fn initialize_tracing() -> Result<SdkMeterProvider> {
+    let target = filter::Targets::new()
+        .with_default(LevelFilter::DEBUG)
+        .with_target("opentelemetry", LevelFilter::INFO)
+        .with_target("tower_http", LevelFilter::DEBUG);
+
     let fmt = tracing_subscriber::fmt::layer()
-        .with_thread_names(true)
         .with_level(true)
-        .with_filter(LevelFilter::DEBUG);
+        .with_filter(target);
 
     tracing_subscriber::registry().with(fmt).init();
 

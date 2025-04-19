@@ -8,16 +8,19 @@ use axum::response::Response;
 type AppResponse = Result<Response, AppErrors>;
 
 const MAX_BODY_SIZE: usize = 1024;
+const ALLOWED_CONTENT_TYPES: [&str; 2] = ["text/plain", "application/json"];
 
 pub async fn validate_headers(headers: HeaderMap, request: Request, next: Next) -> AppResponse {
-    let allowed_content_type = "text/plain";
     let content_type = headers
         .get(CONTENT_TYPE)
         .ok_or(AppErrors::NoContentType)?
         .to_str()
         .map_err(|_| AppErrors::NoContentType)?;
 
-    if !content_type.contains(allowed_content_type) {
+    if !ALLOWED_CONTENT_TYPES
+        .iter()
+        .any(|&allowed| content_type.contains(allowed))
+    {
         return Err(AppErrors::BadContentType(content_type.to_owned()));
     }
 
@@ -56,11 +59,28 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_validate_headers_accepts_valid_content_type() {
+    async fn test_validate_headers_accepts_text_plain_content_type() {
         let request = Request::builder()
             .method(Method::POST)
             .uri("/")
             .header(CONTENT_TYPE, "text/plain")
+            .body(Body::empty())
+            .unwrap();
+
+        let app = Router::new()
+            .route("/", post(ok_handler))
+            .layer(from_fn(validate_headers));
+
+        let response = app.oneshot(request).await.unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn test_validate_headers_accepts_application_json_content_type() {
+        let request = Request::builder()
+            .method(Method::POST)
+            .uri("/")
+            .header(CONTENT_TYPE, "application/json")
             .body(Body::empty())
             .unwrap();
 
@@ -93,7 +113,7 @@ mod tests {
         let request = Request::builder()
             .method(Method::POST)
             .uri("/")
-            .header(CONTENT_TYPE, "application/json")
+            .header(CONTENT_TYPE, "text/css")
             .body(Body::empty())
             .unwrap();
 
